@@ -1,0 +1,780 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Quota Pulse</title>
+    <script src="floatingBubbleBoot.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="titlebar">
+        <div class="brand-block">
+          <div class="app-title"><img class="app-brand-icon app-title-mark" src="../../../assets/brand-icon.png" alt="" aria-hidden="true" /><span class="app-title-text">Quota Pulse</span><span id="liveDot" class="live-dot" title="Stream offline"></span><span class="app-title-measure" aria-hidden="true">Quota Pulse</span></div>
+          <div id="status" class="status">正在启动</div>
+        </div>
+        <div class="title-controls">
+          <nav class="tabs" aria-label="Period tabs">
+            <span class="tab-indicator" aria-hidden="true"></span>
+            <button class="tab active" data-period="today">今日</button>
+            <button class="tab" data-period="month">本月</button>
+            <button class="tab" data-period="allTime">累计</button>
+          </nav>
+          <span id="footerActionSlot">
+            <span id="utilityActions" class="utility-actions">
+              <button id="refreshButton" class="refresh-button" title="刷新" aria-label="刷新"><span class="refresh-button-icon" aria-hidden="true">↻</span><span class="refresh-button-spinner" aria-hidden="true"></span></button>
+              <button id="settingsButton" class="icon-button settings-icon-button" title="设置" aria-label="设置"></button>
+            </span>
+          </span>
+          <div class="actions-hotspot" title="窗口控制"></div>
+          <div class="window-actions">
+            <button id="pinButton" class="icon-button" title="切换窗口模式">⇧</button>
+            <button id="minButton" class="icon-button" title="最小化" aria-label="最小化">−</button>
+            <button id="closeButton" class="icon-button" title="关闭" aria-label="关闭">×</button>
+          </div>
+        </div>
+      </header>
+
+      <section id="settingsPanel" class="settings-panel hidden">
+        <aside class="settings-navigation" aria-label="Settings navigation">
+          <div class="settings-navigation-head">
+            <strong data-i18n="settings.workspace.title">Settings</strong>
+          </div>
+          <div class="settings-navigation-list">
+            <button class="settings-navigation-item" type="button" data-settings-target="general">
+              <span class="settings-section-icon settings-section-icon-general" aria-hidden="true"></span>
+              <span data-i18n="settings.nav.general">General</span>
+            </button>
+            <button class="settings-navigation-item" type="button" data-settings-target="main">
+              <span class="settings-section-icon settings-section-icon-main" aria-hidden="true"></span>
+              <span data-i18n="settings.nav.main">Home</span>
+            </button>
+            <button class="settings-navigation-item" type="button" data-settings-target="window">
+              <span class="settings-section-icon settings-section-icon-window" aria-hidden="true"></span>
+              <span data-i18n="settings.nav.window">Window</span>
+            </button>
+            <button class="settings-navigation-item" type="button" data-settings-target="appearance">
+              <span class="settings-section-icon settings-section-icon-appearance" aria-hidden="true"></span>
+              <span data-i18n="settings.nav.appearance">Style</span>
+            </button>
+            <button class="settings-navigation-item" type="button" data-settings-target="tools">
+              <span class="settings-section-icon settings-section-icon-tools" aria-hidden="true"></span>
+              <span data-i18n="settings.nav.tools">Data</span>
+            </button>
+            <button class="settings-navigation-item" type="button" data-settings-target="limits">
+              <span class="settings-section-icon settings-section-icon-limits" aria-hidden="true"></span>
+              <span data-i18n="settings.nav.limits">Limits</span>
+            </button>
+            <button class="settings-navigation-item" type="button" data-settings-target="accounts">
+              <span class="settings-section-icon settings-section-icon-accounts" aria-hidden="true"></span>
+              <span data-i18n="settings.nav.accounts">Accounts</span>
+            </button>
+            <button class="settings-navigation-item" type="button" data-settings-target="push">
+              <span class="settings-section-icon settings-section-icon-push" aria-hidden="true"></span>
+              <span data-i18n="settings.nav.push">Alerts</span>
+            </button>
+          </div>
+        </aside>
+        <div class="settings-workspace">
+          <div class="settings-workspace-head">
+            <h2 id="settingsWorkspaceTitle" data-i18n="settings.sections.general">General</h2>
+          </div>
+        <div class="settings-group settings-collapsible-group settings-general-group">
+          <button class="settings-section-toggle" type="button" data-settings-section="general" aria-expanded="false" aria-controls="generalSettingsDetails">
+            <span class="settings-section-heading"><span class="settings-section-icon settings-section-icon-general" aria-hidden="true"></span><span data-i18n="settings.sections.general">General</span></span>
+            <span class="settings-section-meta"><span id="generalSettingsSummary" class="settings-section-summary"></span><span class="settings-section-disclosure" aria-hidden="true"></span></span>
+          </button>
+          <div id="generalSettingsDetails" class="settings-section-details hidden">
+            <div class="settings-subgroup settings-language-group">
+              <label class="settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.language.label">Interface language</span></span>
+                <select id="languageInput">
+                  <option value="auto" data-i18n="settings.language.auto">Auto (system)</option>
+                  <option value="en" data-i18n="settings.language.english">English</option>
+                  <option value="zh-TW" data-i18n="settings.language.zhTW">繁體中文</option>
+                  <option value="zh-CN" data-i18n="settings.language.zhCN">简体中文</option>
+                  <option value="ko" data-i18n="settings.language.korean">한국어</option>
+                  <option value="ja" data-i18n="settings.language.japanese">日本語</option>
+                </select>
+              </label>
+            </div>
+            <div id="startupGroup" class="settings-group settings-subgroup">
+              <div class="settings-group-header"><span data-i18n="settings.startup.title">Startup</span></div>
+              <label class="checkbox-label settings-item">
+                <span class="settings-item-text">
+                  <span class="settings-item-title" data-i18n="settings.startup.startAtLogin">Start at login</span>
+                </span>
+                <input id="startAtLoginInput" type="checkbox" />
+                <span id="startupNote" class="settings-note settings-item-desc" data-i18n="settings.startup.available">Available in packaged builds. On Linux, run the AppImage build to enable.</span>
+              </label>
+            </div>
+            <div class="settings-subgroup">
+              <div class="settings-group-header"><span data-i18n="settings.advanced.title">Advanced</span></div>
+              <p class="settings-note"><span data-i18n="settings.advanced.note">Additional options are available in</span> <code>settings.json</code>.</p>
+              <div class="settings-actions">
+                <button id="openConfigButton" data-i18n="settings.advanced.openConfig">Open Config</button>
+              </div>
+            </div>
+            <div class="settings-subgroup about-settings">
+              <div class="settings-group-header"><span data-i18n="settings.about.title">About Quota Pulse</span><span id="aboutVersion">—</span></div>
+              <p class="settings-note" data-i18n="settings.about.description">Open-source AI tool token usage monitor, licensed under MIT.</p>
+              <div class="about-settings-links">
+                <button id="openRepositoryButton" type="button" class="inline-link" data-i18n="settings.about.repository">GitHub</button>
+                <button id="reportIssueButton" type="button" class="inline-link" data-i18n="settings.about.reportIssue">Report an issue</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-group settings-collapsible-group settings-main-group">
+          <button class="settings-section-toggle" type="button" data-settings-section="main" aria-expanded="false" aria-controls="mainSettingsDetails">
+            <span class="settings-section-heading"><span class="settings-section-icon settings-section-icon-main" aria-hidden="true"></span><span data-i18n="settings.sections.main">Main</span></span>
+            <span class="settings-section-meta"><span id="mainSettingsSummary" class="settings-section-summary"></span><span class="settings-section-disclosure" aria-hidden="true"></span></span>
+          </button>
+          <div id="mainSettingsDetails" class="settings-section-details hidden">
+            <div class="settings-subgroup settings-main-screen-group">
+              <div class="settings-note-row">
+                <p class="settings-note" data-i18n="settings.views.note">Choose which main views appear and the order of the mode button.</p>
+                <div class="tool-header-actions">
+                  <button id="resetViewDisplayOrderButton" class="tool-header-action" type="button" title="Reset order" aria-label="Reset order" data-i18n-title="settings.views.resetOrder" data-i18n-aria-label="settings.views.resetOrder"><span aria-hidden="true">↺</span></button>
+                  <button id="showAllViewsButton" class="tool-header-action" type="button" title="Show all" aria-label="Show all" data-i18n-title="settings.views.showAll" data-i18n-aria-label="settings.views.showAll"><span class="tool-header-eye" aria-hidden="true"></span></button>
+                </div>
+              </div>
+              <div id="viewDisplayList" class="tool-preference-list"></div>
+              <label class="settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.currency.label">Currency</span></span>
+                <select id="currencyInput">
+                  <option value="USD" data-i18n="settings.currency.usd">USD - US Dollar</option>
+                  <option value="TWD" data-i18n="settings.currency.twd">TWD - New Taiwan Dollar</option>
+                  <option value="HKD" data-i18n="settings.currency.hkd">HKD - Hong Kong Dollar</option>
+                  <option value="CNY" data-i18n="settings.currency.cny">CNY - Chinese Yuan</option>
+                </select>
+              </label>
+              <div id="currencyRateRow" class="currency-rate-row">
+                <div class="settings-item">
+                  <span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.currency.rateMode">Exchange rate</span></span>
+                  <div class="inline-options" role="radiogroup">
+                    <label class="inline-option"><input type="radio" name="currencyRateMode" value="auto" id="currencyRateModeAuto" /><span data-i18n="settings.currency.modeAuto">Auto</span></label>
+                    <label class="inline-option"><input type="radio" name="currencyRateMode" value="manual" id="currencyRateModeManual" /><span data-i18n="settings.currency.modeManual">Manual</span></label>
+                  </div>
+                  <span id="currencyRateStatus" class="settings-note settings-item-desc currency-rate-status"></span>
+                </div>
+                <div id="currencyRateManualField" class="currency-rate-manual-field hidden">
+                  <span class="currency-rate-prefix">1 USD =</span>
+                  <input id="currencyRateOverrideInput" type="number" step="0.0001" min="0" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-group settings-collapsible-group settings-window-section-group">
+          <button class="settings-section-toggle" type="button" data-settings-section="window" aria-expanded="false" aria-controls="windowSettingsDetails">
+            <span class="settings-section-heading"><span class="settings-section-icon settings-section-icon-window" aria-hidden="true"></span><span data-i18n="settings.sections.window">Window</span></span>
+            <span class="settings-section-meta"><span id="windowSettingsSummary" class="settings-section-summary"></span><span class="settings-section-disclosure" aria-hidden="true"></span></span>
+          </button>
+          <div id="windowSettingsDetails" class="settings-section-details hidden">
+            <div class="settings-subgroup settings-window-group">
+              <label class="settings-item">
+                <span class="settings-item-text">
+                  <span class="settings-item-title" data-i18n="settings.display.windowBehavior">Window behavior</span>
+                </span>
+                <select id="windowBehaviorInput">
+                  <option value="floating" data-i18n="settings.windowBehavior.floating">Floating above apps</option>
+                  <option value="normal" data-i18n="settings.windowBehavior.normal">Normal window</option>
+                  <option value="desktop" data-i18n="settings.windowBehavior.desktop">Desktop pinned</option>
+                </select>
+                <span class="settings-note settings-item-desc" data-i18n="settings.display.windowBehaviorNote">Desktop pinned keeps the widget below other apps while remaining draggable and resizable.</span>
+              </label>
+              <div class="settings-item settings-shortcut-item">
+                <span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.display.windowShortcut">Shortcut</span></span>
+                <div class="shortcut-recorder">
+                  <button id="windowToggleShortcutValue" class="shortcut-value" type="button" aria-live="polite" title="Record" data-i18n-title="settings.shortcut.record">Off</button>
+                  <button id="windowToggleShortcutClearButton" type="button" data-i18n="settings.shortcut.clear">Clear</button>
+                </div>
+                <p id="windowToggleShortcutNote" class="settings-note settings-item-desc" data-i18n="settings.display.windowShortcutNote">Record a global shortcut to show or hide the window.</p>
+              </div>
+            </div>
+            <div class="settings-subgroup settings-presence-group">
+              <div class="settings-group-header"><span data-i18n="settings.display.presenceTitle">Floating & Tray</span></div>
+              <div class="presence-feature">
+                <label class="checkbox-label settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.display.floatingBubble">Floating Bubble</span></span><input id="floatingBubbleInput" type="checkbox" /></label>
+                <div id="floatingBubbleOptions" class="presence-feature-body hidden">
+                  <p class="settings-note" data-i18n="settings.display.floatingBubbleNote">Collapse the widget into a slim draggable mini-window; click it to reopen.</p>
+                  <label id="floatingBubbleTriggerRow" class="settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.display.floatingBubbleTrigger">Open on</span></span>
+                    <select id="floatingBubbleTriggerInput">
+                      <option value="click" data-i18n="settings.floatingBubbleTrigger.click">Click</option>
+                      <option value="hover" data-i18n="settings.floatingBubbleTrigger.hover">Hover (preview)</option>
+                    </select>
+                  </label>
+                  <label id="floatingBubbleContentRow" class="settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.display.floatingBubbleContent">Bubble display</span></span>
+                    <select id="floatingBubbleContentInput">
+                      <option value="icon" data-i18n="settings.tray.iconOnly">Icon only</option>
+                      <option value="tokens" data-i18n="settings.tray.tokensToday">Tokens Today (1.2M)</option>
+                      <option value="cost" data-i18n="settings.tray.costToday">Cost Today ($1.23)</option>
+                      <option value="both" data-i18n="settings.tray.bothToday">Tokens + Cost Today (1.2M - $1.23)</option>
+                      <option value="tokensAll" data-i18n="settings.tray.tokensTotal">Tokens Total (1.36B)</option>
+                      <option value="costAll" data-i18n="settings.tray.costTotal">Cost Total ($8.28)</option>
+                      <option value="bothAll" data-i18n="settings.tray.bothTotal">Tokens + Cost Total (1.36B - $8.28)</option>
+                      <option value="limitsAllSessions" data-i18n="settings.tray.limitsAllSessions">Limits: first two tools' primary quotas (12% · 34%)</option>
+                      <option value="barsSession" data-i18n="settings.tray.barsSession">Limit bars: lowest session remaining</option>
+                      <option value="barsWeekly" data-i18n="settings.tray.barsWeekly">Limit bars: lowest weekly remaining</option>
+                      <option value="barsAllSessions" data-i18n="settings.tray.barsAllSessions">Limit bars: first two tools' primary quotas</option>
+                      <option value="bars" data-i18n="settings.tray.barsWindow">Limit bars: lowest remaining limit</option>
+                      <option value="custom" data-i18n="settings.tray.custom">Custom…</option>
+                    </select>
+                  </label>
+                  <div id="floatingBubbleComposer" class="tray-composer hidden" data-surface="floatingBubble"></div>
+                </div>
+              </div>
+              <div class="presence-feature">
+                <label class="checkbox-label settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.display.showTrayIcon">Show tray/menu bar icon</span></span><input id="showTrayIconInput" type="checkbox" /></label>
+                <div id="trayIconOptions" class="presence-feature-body hidden">
+                  <label class="settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.display.trayText">Tray text</span></span>
+                    <select id="trayContentInput">
+                      <option value="tokens" data-i18n="settings.tray.tokensToday">Tokens Today (1.2M)</option>
+                      <option value="cost" data-i18n="settings.tray.costToday">Cost Today ($1.23)</option>
+                      <option value="both" data-i18n="settings.tray.bothToday">Tokens + Cost Today (1.2M - $1.23)</option>
+                      <option value="tokensAll" data-i18n="settings.tray.tokensTotal">Tokens Total (1.36B)</option>
+                      <option value="costAll" data-i18n="settings.tray.costTotal">Cost Total ($8.28)</option>
+                      <option value="bothAll" data-i18n="settings.tray.bothTotal">Tokens + Cost Total (1.36B - $8.28)</option>
+                      <option value="limitsAllSessions" data-i18n="settings.tray.limitsAllSessions">Limits: first two tools' primary quotas (12% · 34%)</option>
+                      <option value="barsSession" data-i18n="settings.tray.barsSession">Limit bars: lowest session remaining</option>
+                      <option value="barsWeekly" data-i18n="settings.tray.barsWeekly">Limit bars: lowest weekly remaining</option>
+                      <option value="barsAllSessions" data-i18n="settings.tray.barsAllSessions">Limit bars: first two tools' primary quotas</option>
+                      <option value="bars" data-i18n="settings.tray.barsWindow">Limit bars: lowest remaining limit</option>
+                      <option value="icon" data-i18n="settings.tray.iconOnly">Icon only</option>
+                      <option value="custom" data-i18n="settings.tray.custom">Custom…</option>
+                    </select>
+                  </label>
+                  <div id="trayComposer" class="tray-composer hidden" data-surface="tray"></div>
+                <label class="checkbox-label settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.display.trayProviderBadge">Show Quota Pulse badge on provider icons</span></span><input id="showTrayProviderBadgeInput" type="checkbox" /></label>
+                  <label class="checkbox-label settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.display.trayMode">Tray-only mode</span></span><input id="trayModeInput" type="checkbox" /></label>
+                  <div id="trayOptions" class="presence-feature-body hidden">
+                    <p class="settings-note" data-i18n="settings.display.trayNote">Hide the main window; show a popover from the macOS menu bar or Windows system tray.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-group settings-collapsible-group settings-appearance-section-group">
+          <button class="settings-section-toggle" type="button" data-settings-section="appearance" aria-expanded="false" aria-controls="appearanceSettingsDetails">
+            <span class="settings-section-heading"><span class="settings-section-icon settings-section-icon-appearance" aria-hidden="true"></span><span data-i18n="settings.appearance.title">Appearance</span></span>
+            <span class="settings-section-meta"><span id="appearanceSettingsSummary" class="settings-section-summary"></span><span class="settings-section-disclosure" aria-hidden="true"></span></span>
+          </button>
+          <div id="appearanceSettingsDetails" class="settings-section-details hidden">
+            <div class="settings-subgroup settings-appearance-group">
+              <div class="settings-item"><span class="settings-item-text"><span id="windowGlassEffectLabel" class="settings-item-title" data-i18n="settings.appearance.systemGlass">Glass Backdrop</span></span><div class="inline-options" role="radiogroup" aria-labelledby="windowGlassEffectLabel"><label class="inline-option"><input type="radio" name="systemGlassOption" value="system" /><span data-i18n="settings.appearance.glassEffectSystem">System</span></label><label class="inline-option"><input type="radio" name="systemGlassOption" value="off" /><span data-i18n="settings.appearance.glassEffectTransparent">Transparent</span></label></div></div>
+              <label id="windowsBackdropRow" class="settings-item hidden"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.appearance.windowsBackdrop">Windows Glass Style</span></span><select id="windowsBackdropInput"><option value="acrylic" data-i18n="settings.appearance.windowsBackdropAcrylic">Acrylic</option><option value="accent" data-i18n="settings.appearance.windowsBackdropAccent">Accent Blur (experimental)</option></select><span id="windowsBackdropNote" class="settings-note settings-item-desc hidden" data-i18n="settings.appearance.windowsBackdropNote">Keeps the background translucent and blurred, even when the window is not focused.</span></label>
+              <label class="checkbox-label settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.appearance.liveIndicator">Live Indicator</span></span><input id="liveDotInput" type="checkbox" /></label>
+              <label class="checkbox-label settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.appearance.toolIcons">Tool Icons</span></span><input id="toolIconsInput" type="checkbox" /></label>
+              <label class="checkbox-label settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.appearance.titleIcon">Use Title Icon</span></span><input id="titleIconInput" type="checkbox" /></label>
+              <label class="checkbox-label settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.appearance.compactTotalTokens">Show compact token total</span></span><input id="showCompactTotalTokensInput" type="checkbox" /></label>
+              <label class="checkbox-label settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.appearance.swapSettingsRefresh">Swap Settings and Refresh buttons</span></span><input id="swapSettingsRefreshInput" type="checkbox" /></label>
+              <div class="settings-item settings-slider-item"><span class="settings-item-text"><span class="slider-label"><span id="glassSliderLabel" class="settings-item-title" data-i18n="settings.appearance.glass">Glass</span><button id="resetGlassButton" type="button" class="reset-appearance-button reset-inline" title="Reset glass" data-i18n-title="settings.appearance.resetGlass">↺</button></span></span><input id="glassInput" type="range" min="0" max="100" step="1" aria-labelledby="glassSliderLabel" /><span class="slider-value" aria-hidden="true"></span></div>
+              <div class="settings-item settings-slider-item"><span class="settings-item-text"><span class="slider-label"><span id="depthSliderLabel" class="settings-item-title" data-i18n="settings.appearance.depth">Depth</span><button id="resetDepthButton" type="button" class="reset-appearance-button reset-inline" title="Reset depth" data-i18n-title="settings.appearance.resetDepth">↺</button></span></span><input id="blurInput" type="range" min="0" max="100" step="1" aria-labelledby="depthSliderLabel" /><span class="slider-value" aria-hidden="true"></span></div>
+              <div class="settings-item settings-slider-item"><span class="settings-item-text"><span class="slider-label"><span id="zoomSliderLabel" class="settings-item-title" data-i18n="settings.appearance.zoom">Zoom</span><button id="resetZoomButton" type="button" class="reset-appearance-button reset-inline" title="Reset zoom" data-i18n-title="settings.appearance.resetZoom">↺</button></span></span><input id="zoomInput" type="range" min="70" max="160" step="5" aria-labelledby="zoomSliderLabel" /><span class="slider-value" aria-hidden="true"></span></div>
+              <div class="settings-item">
+                <span class="settings-item-text">
+                  <span class="settings-item-title" data-i18n="settings.appearance.reduceMotion">Reduce Motion</span>
+                </span>
+                <div class="inline-options" role="radiogroup">
+                  <label class="inline-option"><input type="radio" name="reduceMotionOption" value="system" /><span data-i18n="settings.appearance.motion.system">System</span></label>
+                  <label class="inline-option"><input type="radio" name="reduceMotionOption" value="on" /><span data-i18n="settings.appearance.motion.on">On</span></label>
+                  <label class="inline-option"><input type="radio" name="reduceMotionOption" value="off" /><span data-i18n="settings.appearance.motion.off">Off</span></label>
+                </div>
+                <span class="settings-note settings-item-desc" data-i18n="settings.appearance.reduceMotionNote">Reduce animations, or follow the system setting.</span>
+              </div>
+            </div>
+            <div class="settings-subgroup settings-theme-group">
+              <div class="settings-note-row">
+                <div class="settings-group-header"><span data-i18n="settings.appearance.themeTitle">Interface Theme</span></div>
+                <div class="tool-header-actions">
+                  <button id="resetThemeColorsButton" class="tool-header-action" type="button" title="Reset all" aria-label="Reset all" data-i18n-title="settings.appearance.resetAll" data-i18n-aria-label="settings.appearance.resetAll"><span aria-hidden="true">↺</span></button>
+                </div>
+              </div>
+              <div id="themePresetChips" class="theme-preset-chips"></div>
+              <div class="settings-field theme-code-field">
+                <label for="themeCodeInput" data-i18n="settings.appearance.themeCodeLabel">Theme Code</label>
+                <div class="hub-secret-row">
+                  <input id="themeCodeInput" class="theme-code-input" type="text" maxlength="64" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="TM1-..." data-i18n-placeholder="settings.appearance.themeCodePlaceholder" />
+                  <button id="copyThemeCodeButton" class="icon-button" type="button" title="Copy theme code" data-i18n-title="settings.appearance.themeCodeCopy" aria-label="Copy theme code" data-i18n-aria-label="settings.appearance.themeCodeCopy">⧉</button>
+                  <button id="applyThemeCodeButton" class="icon-button" type="button" title="Paste and apply" data-i18n-title="settings.appearance.themeCodeApply" aria-label="Paste and apply" data-i18n-aria-label="settings.appearance.themeCodeApply">⎘</button>
+                </div>
+                <p class="settings-note" data-i18n="settings.appearance.themeCodeNote">Shares interface colours only. Vendor colours and appearance preferences stay local.</p>
+                <p id="themeCodeStatus" class="theme-code-status" aria-live="polite"></p>
+              </div>
+              <div id="themeAdvancedGroup" class="settings-group cursor-account-group theme-color-accordion">
+                <button id="themeAdvancedToggle" class="settings-group-header cursor-settings-toggle" type="button" aria-expanded="false" aria-controls="themeAdvancedDetails">
+                  <span data-i18n="settings.appearance.advanced">Advanced customization</span>
+                  <span class="cursor-settings-summary">
+                    <span class="cursor-disclosure-icon" aria-hidden="true"></span>
+                  </span>
+                </button>
+                <div id="themeAdvancedDetails" class="cursor-settings-details hidden" inert>
+                  <div id="themeColorGrid" class="color-picker-grid"></div>
+                </div>
+              </div>
+              <div id="themeVendorGroup" class="settings-group cursor-account-group theme-color-accordion settings-vendor-color-group">
+                <div class="settings-note-row">
+                  <button id="themeVendorToggle" class="settings-group-header cursor-settings-toggle" type="button" aria-expanded="false" aria-controls="themeVendorDetails">
+                    <span data-i18n="settings.appearance.vendorTitle">Vendor Colors</span>
+                    <span class="cursor-settings-summary">
+                      <span class="cursor-disclosure-icon" aria-hidden="true"></span>
+                    </span>
+                  </button>
+                  <div class="tool-header-actions">
+                    <button id="resetVendorColorsButton" class="tool-header-action" type="button" title="Reset to brand" aria-label="Reset to brand" data-i18n-title="settings.appearance.resetBrand" data-i18n-aria-label="settings.appearance.resetBrand"><span aria-hidden="true">↺</span></button>
+                  </div>
+                </div>
+                <div id="themeVendorDetails" class="cursor-settings-details hidden" inert>
+                  <p class="settings-note" data-i18n="settings.appearance.vendorNote">Override the chart and list colour for each tool. Reset returns it to the brand colour.</p>
+                  <div id="vendorColorList" class="vendor-color-list"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-group settings-collapsible-group settings-tools-group">
+          <button class="settings-section-toggle" type="button" data-settings-section="tools" aria-expanded="false" aria-controls="toolsSettingsDetails">
+            <span class="settings-section-heading"><span class="settings-section-icon settings-section-icon-tools" aria-hidden="true"></span><span data-i18n="settings.sections.collection">Collection</span></span>
+            <span class="settings-section-meta"><span id="toolsSettingsSummary" class="settings-section-summary"></span><span class="settings-section-disclosure" aria-hidden="true"></span></span>
+          </button>
+          <div id="toolsSettingsDetails" class="settings-section-details hidden">
+            <div class="settings-subgroup settings-tools-subgroup">
+              <div class="settings-note-row">
+                <p class="settings-note" data-i18n="settings.tools.note">Track controls collection. Show controls the main Tools list.</p>
+                <div class="tool-header-actions">
+                  <button id="resetClientDisplayOrderButton" class="tool-header-action" type="button" title="Reset order" aria-label="Reset order" data-i18n-title="settings.tools.resetOrder" data-i18n-aria-label="settings.tools.resetOrder"><span aria-hidden="true">↺</span></button>
+                  <button id="showAllClientsButton" class="tool-header-action" type="button" title="Show all" aria-label="Show all" data-i18n-title="settings.tools.showAll" data-i18n-aria-label="settings.tools.showAll"><span class="tool-header-eye" aria-hidden="true"></span></button>
+                </div>
+              </div>
+              <div id="clientDisplayList" class="tool-preference-list"></div>
+            </div>
+            <div class="settings-subgroup settings-collection-cadence">
+              <label class="settings-item">
+                <span class="settings-item-text">
+                  <span class="settings-item-title" data-i18n="settings.collection.cadence">Collection frequency</span>
+                </span>
+                <select id="collectionCadenceInput">
+                  <option value="live" data-i18n="settings.collection.mode.live">Live watch</option>
+                  <option value="300000" data-i18n="settings.collection.interval.5m">Every 5 minutes</option>
+                  <option value="900000" data-i18n="settings.collection.interval.15m">Every 15 minutes</option>
+                  <option value="1800000" data-i18n="settings.collection.interval.30m">Every 30 minutes</option>
+                </select>
+                <span id="collectionCadenceNote" class="settings-note settings-item-desc" data-i18n="settings.collection.modeDesc" hidden>Interval mode turns off file watching.</span>
+              </label>
+            </div>
+            <div class="settings-subgroup session-archive-settings">
+              <div class="settings-group-header"><span data-i18n="settings.collection.sessionArchiveTitle">Session history</span></div>
+              <label class="checkbox-label session-archive-toggle settings-item">
+                <span class="settings-item-text">
+                  <span class="settings-item-title" data-i18n="settings.collection.sessionArchiveToggle">Preserve deleted session usage</span>
+                </span>
+                <input id="sessionUsageArchiveInput" type="checkbox" />
+                <span class="settings-note settings-item-desc" data-i18n="settings.collection.sessionArchiveDesc">Keep session totals and observed daily activity after source tools delete or clear sessions.</span>
+              </label>
+              <div class="session-archive-footer">
+                <span id="sessionUsageArchiveStatus" class="settings-note"></span>
+                <button id="clearSessionUsageArchiveButton" class="session-archive-clear" type="button" data-i18n="settings.collection.sessionArchiveClear">Clear retained data</button>
+              </div>
+            </div>
+            <div id="wslScanRow" class="settings-wsl-block hidden">
+              <label class="checkbox-label wsl-scan-toggle settings-item">
+                <span class="settings-item-text">
+                  <span class="settings-item-title" data-i18n="settings.collection.wslScan">Scan tools inside WSL</span>
+                </span>
+                <input id="wslScanInput" type="checkbox" />
+                <span class="settings-note settings-item-desc" data-i18n="settings.collection.wslScanDesc">When off, Windows no longer scans WSL tools over \\wsl$.</span>
+              </label>
+              <div id="wslPanel" class="wsl-panel"></div>
+            </div>
+            <div class="settings-subgroup settings-export-block">
+              <div class="settings-group-header"><span data-i18n="settings.export.title">Data export</span></div>
+              <p class="settings-note" data-i18n="settings.export.desc">Export your usage as CSV + JSON for spreadsheets, Obsidian, Grafana, or scripts.</p>
+              <div class="export-auto-head">
+                <label class="checkbox-label export-auto-toggle settings-item">
+                  <span class="settings-item-text">
+                    <span class="settings-item-heading">
+                      <span class="settings-item-title" data-i18n="settings.export.autoLabel">Auto-export to a folder</span>
+                      <span id="exportAutoStatus" class="cursor-status-pill export-status-pill hidden"></span>
+                    </span>
+                  </span>
+                  <input id="exportAutoInput" type="checkbox" />
+                </label>
+              </div>
+              <div id="exportAutoDetails" class="export-auto-details hidden">
+                <div class="export-dir-row">
+                  <span id="exportDirLabel" class="export-dir-path"></span>
+                  <div class="settings-actions export-dir-actions">
+                    <button id="exportPickDirButton" type="button" data-i18n="settings.export.pickDir">Choose folder…</button>
+                  </div>
+                </div>
+                <label class="export-interval-row settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.export.interval">Auto-export frequency</span></span>
+                  <select id="exportIntervalInput">
+                    <option value="30000" data-i18n="settings.export.interval.30s">Every 30 seconds</option>
+                    <option value="60000" data-i18n="settings.export.interval.1m">Every minute</option>
+                    <option value="300000" data-i18n="settings.export.interval.5m">Every 5 minutes</option>
+                    <option value="900000" data-i18n="settings.export.interval.15m">Every 15 minutes</option>
+                    <option value="1800000" data-i18n="settings.export.interval.30m">Every 30 minutes</option>
+                    <option value="3600000" data-i18n="settings.export.interval.60m">Every 60 minutes</option>
+                  </select>
+                </label>
+              </div>
+              <div class="export-manual-row">
+                <span class="settings-note export-manual-note" data-i18n="settings.export.manualDesc">Or export once to a folder you pick:</span>
+                <div class="settings-actions">
+                  <button id="exportNowButton" type="button" data-i18n="settings.export.manualNow">Manual export…</button>
+                </div>
+              </div>
+            </div>
+            <div id="tokscaleGroup" class="settings-group settings-subgroup settings-data-engine-group">
+              <div class="settings-group-header"><span>Tokscale</span><span data-i18n="settings.tokscale.source">CLI dependency from npm</span></div>
+              <div class="tokscale-lines">
+                <div><span data-i18n="settings.tokscale.installed">Installed</span><strong id="tokscaleInstalled" data-i18n="settings.common.checking">Checking...</strong></div>
+                <div id="tokscaleBundledLine"><span data-i18n="settings.tokscale.bundled">Bundled</span><strong id="tokscaleBundled">—</strong></div>
+                <div><span><span data-i18n="settings.tokscale.npm">On npm</span> <small data-i18n="settings.tokscale.latestTag">(latest tag)</small></span><strong id="tokscaleNpm" data-i18n="settings.common.notChecked">Not checked</strong></div>
+              </div>
+              <p class="settings-note"><span data-i18n="settings.tokscale.noteBefore">Quota Pulse uses tokscale (MIT, open-source) to read token data.</span> <button id="openTokscaleLinkButton" type="button" class="inline-link" data-i18n="settings.tokscale.learnMore">Learn more</button></p>
+              <div id="tokscaleMessage" class="tokscale-message"></div>
+              <div class="settings-actions">
+                <button id="checkTokscaleButton" type="button" data-i18n="settings.tokscale.checkNpm">Check npm</button>
+                <button id="downloadTokscaleButton" type="button" class="hidden" data-i18n="settings.tokscale.downloadNpm">Download from npm</button>
+                <button id="resetTokscaleButton" type="button" class="hidden" data-i18n="settings.tokscale.resetBundled">Reset to bundled</button>
+              </div>
+            </div>
+            <div id="customPricingAccountGroup" class="settings-group cursor-account-group">
+              <button id="customPricingSettingsToggle" class="settings-group-header cursor-settings-toggle" type="button" aria-expanded="false" aria-controls="customPricingSettingsDetails">
+                <span data-i18n="settings.customPricing.title">Custom model pricing</span>
+                <span class="cursor-settings-summary">
+                  <span id="customPricingStatus" class="cursor-status-pill"></span>
+                  <span class="cursor-disclosure-icon" aria-hidden="true"></span>
+                </span>
+              </button>
+              <div id="customPricingSettingsDetails" class="cursor-settings-details hidden">
+                <p class="settings-note" data-i18n="settings.customPricing.note">Override a model's price (USD per 1M tokens) when its auto-detected price is wrong. Applies to all providers of that model.</p>
+                <div id="customPricingList" class="managed-account-list"></div>
+                <div class="settings-actions">
+                  <button id="customPricingAddButton" type="button" data-i18n="settings.customPricing.add">Add override</button>
+                </div>
+                <div id="customPricingForm" class="custom-pricing-form hidden">
+                  <label><span data-i18n="settings.customPricing.model">Model</span>
+                    <select id="customPricingModelSelect"></select>
+                    <input id="customPricingModelInput" class="hidden" type="text" />
+                  </label>
+                  <label><span data-i18n="settings.customPricing.cacheRead">Input (cache hit)</span>
+                    <input id="customPricingCacheRead" type="number" min="0" step="any" /><span id="customPricingCacheReadApprox" class="custom-pricing-approx"></span>
+                  </label>
+                  <label><span data-i18n="settings.customPricing.input">Input (cache miss)</span>
+                    <input id="customPricingInput" type="number" min="0" step="any" /><span id="customPricingInputApprox" class="custom-pricing-approx"></span>
+                  </label>
+                  <label><span data-i18n="settings.customPricing.output">Output</span>
+                    <input id="customPricingOutput" type="number" min="0" step="any" /><span id="customPricingOutputApprox" class="custom-pricing-approx"></span>
+                  </label>
+                  <p class="settings-note" data-i18n="settings.customPricing.perMillion">USD / 1M tokens</p>
+                  <p id="customPricingHint" class="settings-note"></p>
+                  <div id="customPricingError" class="settings-note error hidden"></div>
+                  <div class="settings-actions">
+                    <button id="customPricingSaveButton" type="button" data-i18n="settings.customPricing.save">Save</button>
+                    <button id="customPricingCancelButton" type="button" data-i18n="settings.customPricing.cancel">Cancel</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-group settings-collapsible-group settings-limits-group">
+          <button class="settings-section-toggle" type="button" data-settings-section="limits" aria-expanded="false" aria-controls="limitsSettingsDetails">
+            <span class="settings-section-heading"><span class="settings-section-icon settings-section-icon-limits" aria-hidden="true"></span><span data-i18n="settings.limits.title">AI Tool Limits</span></span>
+            <span class="settings-section-meta"><span id="limitsSettingsSummary" class="settings-section-summary"></span><span class="settings-section-disclosure" aria-hidden="true"></span></span>
+          </button>
+          <div id="limitsSettingsDetails" class="settings-section-details hidden">
+            <div id="limitProviderCheckboxes" class="client-checkboxes limit-provider-list"></div>
+            <label class="settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.limits.refresh">Refresh</span></span>
+              <select id="limitsRefreshInput">
+                <option value="60000">1 min</option>
+                <option value="120000">2 min</option>
+                <option value="300000">5 min</option>
+                <option value="900000">15 min</option>
+                <option value="1800000">30 min</option>
+              </select>
+            </label>
+            <label class="checkbox-label settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.limits.showSource">Show Source</span></span><input id="showLimitSourceInput" type="checkbox" /></label>
+            <label class="checkbox-label settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.limits.maskAccountEmails">Mask account emails</span></span><input id="maskLimitAccountEmailsInput" type="checkbox" /></label>
+            <label class="settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.limits.barsShow">Bars show</span></span>
+              <select id="showLimitUsedInput">
+                <option value="remaining" data-i18n="settings.limits.barsRemaining">Remaining</option>
+                <option value="used" data-i18n="settings.limits.barsUsed">Used</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div class="settings-group settings-collapsible-group settings-accounts-group">
+          <button class="settings-section-toggle" type="button" data-settings-section="accounts" aria-expanded="false" aria-controls="accountsSettingsDetails">
+            <span class="settings-section-heading"><span class="settings-section-icon settings-section-icon-accounts" aria-hidden="true"></span><span data-i18n="settings.sections.accounts">Accounts</span></span>
+            <span class="settings-section-meta"><span id="accountsSettingsSummary" class="settings-section-summary"></span><span class="settings-section-disclosure" aria-hidden="true"></span></span>
+          </button>
+          <div id="accountsSettingsDetails" class="settings-section-details hidden">
+            <div id="codexAccountGroup" class="settings-group cursor-account-group">
+              <button id="codexSettingsToggle" class="settings-group-header cursor-settings-toggle" type="button" aria-expanded="false" aria-controls="codexSettingsDetails">
+                <span data-i18n="settings.codex.title">Codex Accounts</span>
+                <span class="cursor-settings-summary">
+                  <span id="codexAccountStatus" class="cursor-status-pill">Not configured</span>
+                  <span class="cursor-disclosure-icon" aria-hidden="true"></span>
+                </span>
+              </button>
+              <div id="codexSettingsDetails" class="cursor-settings-details hidden">
+                <p class="settings-note" data-i18n="settings.codex.description">Sign in to each Codex account you want to track. Tracking uses isolated managed logins; switch the local Codex account from the Limits page.</p>
+                <div id="codexAccountList" class="managed-account-list"></div>
+                <div class="settings-actions">
+                  <button id="codexAddAccountButton" data-i18n="settings.codex.addAccount">Add account</button>
+                  <button id="codexRefreshAccountsButton" data-i18n="settings.codex.refresh">Refresh</button>
+                </div>
+                <div id="codexLoginStatus" class="settings-note hidden" role="status" aria-live="polite"></div>
+                <div id="codexWorkspaceSelection" class="codex-workspace-selection hidden">
+                  <label>
+                    <span data-i18n="settings.codex.workspace">Workspace</span>
+                    <select id="codexWorkspaceSelect"></select>
+                  </label>
+                  <button id="codexConfirmWorkspaceButton" type="button" data-i18n="settings.codex.addWorkspace">Add this workspace</button>
+                </div>
+                <div id="codexLoginUrlActions" class="settings-actions hidden">
+                  <button id="codexOpenLoginUrlButton" type="button" data-i18n="settings.codex.openLoginUrl">Open browser</button>
+                  <button id="codexCopyLoginUrlButton" type="button" data-i18n="settings.codex.copyLoginUrl">Copy link</button>
+                  <button id="codexCancelLoginButton" type="button" class="hidden" data-i18n="settings.common.cancel">Cancel</button>
+                </div>
+                <details id="codexLoginDetails" class="codex-login-details hidden">
+                  <summary data-i18n="settings.codex.loginDetails">Details</summary>
+                  <pre id="codexLoginOutput" class="codex-login-output"></pre>
+                </details>
+                <div id="codexAccountErrorMessage" class="settings-note error hidden"></div>
+              </div>
+            </div>
+            <div id="cursorAccountGroup" class="settings-group cursor-account-group">
+              <button id="cursorSettingsToggle" class="settings-group-header cursor-settings-toggle" type="button" aria-expanded="false" aria-controls="cursorSettingsDetails">
+                <span data-i18n="settings.cursor.title">Cursor Account</span>
+                <span class="cursor-settings-summary">
+                  <span id="cursorAccountStatus" class="cursor-status-pill" data-i18n="settings.common.checking">Checking...</span>
+                  <span class="cursor-disclosure-icon" aria-hidden="true"></span>
+                </span>
+              </button>
+              <div id="cursorSettingsDetails" class="cursor-settings-details hidden">
+                <div class="settings-actions">
+                  <button id="cursorLoginButton" data-i18n="settings.cursor.openBrowser">Open cursor.com in browser</button>
+                  <button id="cursorLogoutButton" class="hidden" data-i18n="settings.common.logout">Logout</button>
+                  <button id="cursorRefreshButton" class="hidden" data-i18n="settings.common.refresh">Refresh</button>
+                </div>
+                <div id="cursorManualPanel">
+                  <p class="settings-note">
+                    <strong>1.</strong> <span data-i18n="settings.cursor.step1Before">Open</span> <code>cursor.com/settings</code> <span data-i18n="settings.cursor.step1After">in your browser (button above).</span><br>
+                    <strong>2.</strong> <span data-i18n="settings.cursor.step2Before">Open DevTools (F12 or Cmd+Opt+I) -> Application/Storage -> Cookies -></span> cursor.com.<br>
+                    <strong>3.</strong> <span data-i18n="settings.cursor.step3Before">Copy the</span> <code>WorkosCursorSessionToken</code> <span data-i18n="settings.cursor.step3After">value.</span><br>
+                    <strong>4.</strong> <span data-i18n="settings.cursor.step4">Paste it below and click Save.</span>
+                  </p>
+                  <textarea id="cursorManualInput" rows="3" spellcheck="false" placeholder="WorkosCursorSessionToken=..." data-i18n-placeholder="settings.cursor.manualPlaceholder"></textarea>
+                  <div class="settings-actions">
+                    <button id="cursorManualSubmit" data-i18n="settings.cursor.saveToken">Save token</button>
+                  </div>
+                </div>
+                <div id="cursorErrorMessage" class="settings-note error hidden"></div>
+              </div>
+            </div>
+            <div id="opencodeCookieGroup" class="settings-group cursor-account-group">
+              <button id="opencodeSettingsToggle" class="settings-group-header cursor-settings-toggle" type="button" aria-expanded="false" aria-controls="opencodeSettingsDetails">
+                <span data-i18n="settings.opencode.title">OpenCode Accounts</span>
+                <span class="cursor-settings-summary">
+                  <span id="opencodeCookieStatus" class="cursor-status-pill" data-i18n="settings.opencode.statusNotSet">Not configured</span>
+                  <span class="cursor-disclosure-icon" aria-hidden="true"></span>
+                </span>
+              </button>
+              <div id="opencodeSettingsDetails" class="cursor-settings-details hidden">
+                <!-- Profile list -->
+                <div id="opencodeProfileList" class="opencode-profile-list"></div>
+
+                <!-- Add new account -->
+                <div id="opencodeAddForm" class="opencode-add-form">
+                  <button id="opencodeAddToggle" class="opencode-add-summary" type="button" aria-expanded="false" aria-controls="opencodeAddDetails">
+                    <svg class="add-icon" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                      <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span data-i18n="settings.opencode.addProfile">添加账号</span>
+                  </button>
+                  <div id="opencodeAddDetails" class="opencode-add-details accordion-animated-container hidden">
+                    <div class="accordion-animation-inner opencode-add-body">
+                      <div class="settings-actions">
+                        <button id="opencodeOpenBrowser" data-i18n="settings.opencode.openBrowser">Open OpenCode auth in browser</button>
+                      </div>
+                      <p class="settings-note">
+                        <strong>1.</strong> <span data-i18n="settings.opencode.step1Before">Open</span> <code>opencode.ai/auth</code> <span data-i18n="settings.opencode.step1After">in your browser and sign in.</span><br>
+                        <strong>2.</strong> <span data-i18n="settings.opencode.step2">Open DevTools (F12 or Cmd+Opt+I) -> Application/Storage -> Cookies -> opencode.ai.</span><br>
+                        <strong>3.</strong> <span data-i18n="settings.opencode.step3Before">Copy the</span> <code>auth</code> <span data-i18n="settings.opencode.step3After">value.</span><br>
+                        <strong>4.</strong> <span data-i18n="settings.opencode.step4">Paste it below and click Save.</span>
+                      </p>
+                      <div class="settings-row">
+                        <label for="opencodeProfileName" data-i18n="settings.opencode.profileName">账号名称</label>
+                        <input id="opencodeProfileName" type="text" data-i18n-placeholder="settings.opencode.profileNamePlaceholder" placeholder="例如: work、personal">
+                      </div>
+                      <textarea id="opencodeCookieInput" rows="3" spellcheck="false" placeholder="auth=..."></textarea>
+                      <div class="settings-actions">
+                        <button id="opencodeCookieSubmit" data-i18n="settings.opencode.saveProfile">保存</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="opencodeErrorMessage" class="settings-note error hidden"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-group settings-collapsible-group settings-push-section-group">
+          <button class="settings-section-toggle" type="button" data-settings-section="push" aria-expanded="false" aria-controls="pushSettingsDetails">
+            <span class="settings-section-heading"><span class="settings-section-icon settings-section-icon-push" aria-hidden="true"></span><span data-i18n="settings.push.title">Push Notifications</span></span>
+            <span class="settings-section-meta"><span id="pushSettingsSummary" class="settings-section-summary"></span><span class="settings-section-disclosure" aria-hidden="true"></span></span>
+          </button>
+          <div id="pushSettingsDetails" class="settings-section-details hidden">
+            <div class="settings-subgroup settings-push-feishu-group">
+              <div class="settings-group-header"><span data-i18n="settings.push.feishu.title">Feishu (Lark) Bot</span></div>
+              <label class="checkbox-label settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.push.feishu.enable">Enable Feishu push</span></span><input id="pushFeishuEnabled" type="checkbox" /></label>
+              <label class="settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.push.feishu.webhook">Webhook URL</span></span><input id="pushFeishuWebhook" type="text" spellcheck="false" placeholder="https://open.feishu.cn/open-apis/bot/v2/hook/..." /></label>
+              <label class="settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.push.feishu.signKey">Sign secret (optional)</span></span><input id="pushFeishuSignKey" type="password" spellcheck="false" placeholder="optional" /></label>
+              <div class="settings-actions"><button id="pushFeishuTestButton" type="button" data-i18n="settings.push.test">Send test</button></div>
+            </div>
+            <div class="settings-subgroup settings-push-email-group">
+              <div class="settings-group-header"><span data-i18n="settings.push.email.title">Email (SMTP)</span></div>
+              <label class="checkbox-label settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.push.email.enable">Enable email push</span></span><input id="pushEmailEnabled" type="checkbox" /></label>
+              <label class="settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.push.email.smtpServer">SMTP server</span></span><input id="pushEmailSmtpServer" type="text" spellcheck="false" placeholder="smtp.qq.com" /></label>
+              <label class="settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.push.email.smtpPort">SMTP port</span></span><input id="pushEmailSmtpPort" type="number" min="1" max="65535" /></label>
+              <label class="settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.push.email.sender">Sender / account</span></span><input id="pushEmailSender" type="text" spellcheck="false" placeholder="123456@qq.com" /></label>
+              <label class="settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.push.email.authCode">Auth code</span></span><input id="pushEmailAuthCode" type="password" spellcheck="false" placeholder="email authorization code" /></label>
+              <label class="settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.push.email.recipients">Recipients</span></span><input id="pushEmailRecipients" type="text" spellcheck="false" placeholder="a@x.com, b@y.com" /></label>
+              <div class="settings-actions"><button id="pushEmailTestButton" type="button" data-i18n="settings.push.test">Send test</button></div>
+            </div>
+            <div class="settings-subgroup settings-push-alert-group">
+              <div class="settings-group-header"><span data-i18n="settings.push.alert.title">Threshold Alerts</span></div>
+              <label class="checkbox-label settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.push.alert.low">Low quota alert</span><span class="settings-note settings-item-desc" data-i18n="settings.push.alert.lowDesc">Notify when remaining drops below threshold</span></span><input id="pushAlertLowEnabled" type="checkbox" /></label>
+              <label class="settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.push.alert.lowThreshold">Low threshold (%)</span></span><input id="pushAlertLowThreshold" type="number" min="1" max="99" /></label>
+              <label class="checkbox-label settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.push.alert.warning">Warning alert</span></span><input id="pushAlertWarningEnabled" type="checkbox" /></label>
+              <label class="settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.push.alert.warningThreshold">Warning threshold (%)</span></span><input id="pushAlertWarningThreshold" type="number" min="1" max="99" /></label>
+              <label class="checkbox-label settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.push.alert.restored">Restored alert</span></span><input id="pushAlertRestoredEnabled" type="checkbox" /></label>
+              <label class="settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.push.alert.restoredThreshold">Restored threshold (%)</span></span><input id="pushAlertRestoredThreshold" type="number" min="1" max="100" /></label>
+            </div>
+            <div class="settings-subgroup settings-push-schedule-group">
+              <div class="settings-group-header"><span data-i18n="settings.push.schedule.title">Scheduled Reports</span></div>
+              <label class="checkbox-label settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.push.schedule.intervalEnable">Periodic report</span></span><input id="pushReportIntervalEnabled" type="checkbox" /></label>
+              <label class="settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.push.schedule.intervalHours">Every (hours)</span></span><input id="pushReportIntervalHours" type="number" min="1" max="168" /></label>
+              <label class="checkbox-label settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.push.schedule.dailyEnable">Daily report</span></span><input id="pushReportDailyEnabled" type="checkbox" /></label>
+              <label class="settings-item"><span class="settings-item-text"><span class="settings-item-title" data-i18n="settings.push.schedule.dailyTime">Daily at (HH:mm)</span></span><input id="pushReportDailyTime" type="text" spellcheck="false" placeholder="22:00" /></label>
+              <div class="settings-actions">
+                <button id="pushSendNowButton" type="button" data-i18n="settings.push.sendNow">Send report now</button>
+              </div>
+              <p id="pushStatusText" class="settings-note"></p>
+            </div>
+          </div>
+        </div>
+
+        </div>
+      </section>
+
+      <section class="total-panel quota-hero">
+        <div class="label-row"><span>总用量</span><span id="quotaHealthBadge" class="quota-health-badge">实时</span></div>
+        <div class="total-number-row"><div id="totalTokens" class="total-number">0</div><div id="totalTokensCompact" class="total-compact hidden" aria-hidden="true"></div></div>
+        <div id="cost" class="cost">$0.00</div>
+        <div id="quotaHealthSummary" class="quota-health-summary">
+          <div class="quota-ring-wrap" aria-hidden="true">
+            <canvas id="quotaHealthRing" class="quota-health-ring" width="120" height="120"></canvas>
+            <strong id="quotaHealthPercent" class="quota-health-percent">—</strong>
+          </div>
+          <div class="quota-health-copy">
+            <span class="quota-health-label">可用额度</span>
+            <strong id="quotaHealthTitle">正在等待额度数据</strong>
+            <span id="quotaHealthReset" class="quota-health-reset">刷新后检查额度</span>
+          </div>
+        </div>
+      </section>
+
+      <div id="viewBackRow" class="view-back-row hidden">
+        <button id="backHomeButton" type="button" class="back-home-button" title="Back to Home" aria-label="Back to Home" data-i18n-title="views.backHome" data-i18n-aria-label="views.backHome">
+          <span class="back-home-icon" aria-hidden="true"></span>
+          <span data-i18n="views.backHome">Back to Home</span>
+        </button>
+      </div>
+
+      <section id="homePanel" class="home-panel hidden"></section>
+      <section id="breakdown" class="breakdown"></section>
+      <div id="session-detail-head" class="detail-head hidden"></div>
+      <div id="session-detail" class="session-detail hidden"></div>
+      <section id="serviceStatusPanel" class="service-status-panel hidden"></section>
+      <section id="limitsPanel" class="limits-panel hidden"></section>
+      <section id="trendsPanel" class="trends-panel hidden"></section>
+      <footer class="footer">
+        <div id="viewSwitcher" class="view-switcher"></div>
+        <div id="appUpdatePill" class="update-pill hidden" title="">
+          <button id="appUpdatePillAction" type="button" class="update-pill-action">
+            <span id="appUpdatePillLabel" class="update-pill-label"></span>
+          </button>
+          <button id="appUpdatePillRestart" type="button" class="update-pill-restart hidden">
+            <span aria-hidden="true">↻</span>
+            <span id="appUpdatePillRestartLabel" class="update-pill-restart-label"></span>
+          </button>
+          <button id="appUpdatePillDismiss" type="button" class="update-pill-dismiss" data-i18n-title="settings.appUpdate.dismiss" data-i18n-aria-label="settings.appUpdate.dismiss" title="Dismiss this version" aria-label="Dismiss this version">×</button>
+        </div>
+      </footer>
+      <div id="appUpdatePopover" class="app-update-popover" popover="auto" role="dialog" aria-labelledby="appUpdatePopoverTitle">
+        <div class="app-update-popover-header">
+          <strong id="appUpdatePopoverTitle"></strong>
+          <button id="appUpdatePopoverClose" type="button" class="app-update-popover-close" data-i18n-title="settings.appUpdate.close" data-i18n-aria-label="settings.appUpdate.close" title="Close" aria-label="Close">×</button>
+        </div>
+        <div id="appUpdatePopoverBody" class="app-update-notes-body"></div>
+        <div class="app-update-popover-actions">
+          <button id="appUpdatePopoverAction" type="button" class="app-update-popover-primary"></button>
+          <button id="appUpdatePopoverRelease" type="button" class="inline-link" data-i18n="settings.appUpdate.viewFullRelease">View full release</button>
+        </div>
+      </div>
+    </main>
+    <button id="floatingBubbleTab" class="floating-bubble-tab" type="button" title="Show Quota Pulse" aria-label="Show Quota Pulse" data-i18n-title="floatingBubble.expand" data-i18n-aria-label="floatingBubble.expand">
+      <span id="floatingBubbleContent" aria-hidden="true"><img class="floating-brand-icon" src="../../../assets/brand-icon.png" alt="" /></span>
+    </button>
+    <script src="trayBars.js"></script>
+    <script src="usageCharts.js"></script>
+    <script src="homeOverview.js"></script>
+    <script src="themePresets.js"></script>
+    <script src="trayProviderIcons.js"></script>
+    <script src="limitProviderOrder.js"></script>
+    <script src="accountIdentity.js"></script>
+    <script src="appUpdatePresentation.js"></script>
+    <script src="limitProviderPresentation.js"></script>
+    <script src="limitDisplayMode.js"></script>
+    <script src="clientStatusPresentation.js"></script>
+    <script src="wslStatusPresentation.js"></script>
+    <script src="serviceStatusPresentation.js"></script>
+    <script src="serviceStatusProviderPreferences.js"></script>
+    <script src="clientDisplayPreferences.js"></script>
+    <script src="viewDisplayPreferences.js"></script>
+    <script src="homeModulePreferences.js"></script>
+    <script src="preferenceDragSort.js"></script>
+    <script src="i18n.js"></script>
+    <script src="sessionRows.js"></script>
+    <script src="breakdownRenderPolicy.js"></script>
+    <script src="deviceBreakdown.js"></script>
+    <script src="../../shared/projectKey.js"></script>
+    <script src="projectRows.js"></script>
+    <script src="sessionDetail.js"></script>
+    <script src="customPricingForm.js"></script>
+    <script src="../windowShortcut.js"></script>
+    <script src="../../shared/currency.js"></script>
+    <script src="../../shared/trayText.js"></script>
+    <script src="../../shared/trayLayout.js"></script>
+    <script src="../motionPreference.js"></script>
+    <script src="../windowsBackdropMode.js"></script>
+    <script src="windowsGlass.js"></script>
+    <script src="glassRendering.js"></script>
+    <script src="trayComposer.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
