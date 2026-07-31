@@ -1,0 +1,99 @@
+{
+  "name": "quota-pulse",
+  "productName": "Quota Pulse",
+  "version": "1.0.0",
+  "description": "AI 编程工具额度监控与推送 — OpenCode / Codex / Cursor，飞书与邮件通知。",
+  "main": "src/electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron .",
+    "test": "node --test \"tests/**/*.test.js\"",
+    "pack": "electron-builder --dir",
+    "dist:win": "electron-builder --win --x64 --publish never",
+    "dist:win:dir": "electron-builder --win dir --x64 --publish never",
+    "lint": "eslint .",
+    "verify": "npm run lint && npm test"
+  },
+  "build": {
+    "appId": "com.quotapulse.app",
+    "productName": "Quota Pulse",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/electron/**/*",
+      "src/shared/**/*",
+      "assets/brand-icon.png",
+      "assets/icons/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "../assets/app-icon.png",
+        "to": "assets/app-icon.png"
+      }
+    ],
+    "asarUnpack": [
+      "node_modules/@tokscale/**/*",
+      "node_modules/tokscale/**/*",
+      "node_modules/koffi/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "../assets/app-icon.ico",
+      "verifyUpdateCodeSignature": false
+    },
+    "nsis": {
+      "artifactName": "Quota-Pulse-Setup-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "Quota-Pulse-${version}.${ext}"
+    }
+  },
+  "keywords": [
+    "opencode",
+    "codex",
+    "cursor",
+    "quota-monitor",
+    "token-usage",
+    "feishu",
+    "electron",
+    "desktop-widget"
+  ],
+  "author": "Quota Pulse",
+  "license": "MIT",
+  "dependencies": {
+    "chokidar": "^4.0.3",
+    "dotenv": "^17.4.2",
+    "koffi": "^3.1.2",
+    "nodemailer": "^7.0.10",
+    "semver": "^7.8.5",
+    "tar": "^7.5.21",
+    "tokscale": "^4.7.0",
+    "undici": "^7.28.0"
+  },
+  "devDependencies": {
+    "@eslint/compat": "^2.1.0",
+    "@eslint/js": "^10.0.1",
+    "electron": "43.2.0",
+    "electron-builder": "26.15.3",
+    "eslint": "^10.7.0",
+    "globals": "^17.7.0"
+  },
+  "engines": {
+    "node": ">=22.13.0"
+  }
+}
